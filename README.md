@@ -4,6 +4,7 @@
 
   - Test Your Python Code time complexity , space complexity  and cprofile analysis
   - Automatically downloads from github
+  - Visualize the data into more understandable form 
 
 Analyzing python code for performance evaluation. Libraries used in this project are timeit , cProfile and tracemalloc.
 __timeit__ is used for analyzing the time complexity which executes the given code for 5 iteration and returns the time taken to execute.
@@ -22,6 +23,9 @@ Uses
 
 2. Start the benchmarking process
 ``demo.start()``
+   
+3. Visualize the data
+    ```demo.visualize(params='all',save=True)```
 
 ___
 _Note: __Complete__ means the tested function returns something and __correctness__ means it matches the expected output_
@@ -67,14 +71,20 @@ print("Correctness " + str(score['correctness']))
 
 dataframe = score['detailed_profiling']
 
+demo.visualize(params='all',save=True)
+
 display(dataframe)
+
 
 ```
 
 Output:
+
 ![Demo Output](https://github.com/dcostersabin/nocv/blob/master/project_pic/demo.png)
 
+![Cprofile](https://github.com/dcostersabin/Code-Analyzer/blob/master/project_pic/function_calls.png)
 
+![Time](https://github.com/dcostersabin/Code-Analyzer/blob/master/project_pic/time.png)
 
 
 
