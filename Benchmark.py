@@ -6,9 +6,11 @@ import pandas as pd
 import tracemalloc
 from os import path
 import shutil
+import matplotlib.pyplot as plt
 
 __REPEAT__ = 5
 __NUMBER__ = 1000
+__SAVE_PATH__ = os.getcwd()
 
 
 class Benchmark:
@@ -133,4 +135,35 @@ class Benchmark:
         if path.exists(os.getcwd() + '/temp/'):
             shutil.rmtree(os.getcwd() + '/temp/')
 
+    def visualize(self, params='time', save=False):
+        if self.benchmark_score['complete'] is True:
+            if params == 'time':
+                self.__visualize_time__(save)
+            elif params == 'cprofile':
+                self.__visualize_cprofile__()
+            elif params == 'all':
+                self.__visualize_time__(save)
+                self.__visualize_cprofile__(save)
 
+    def __visualize_time__(self, save=False):
+        plt.bar(range(1, 6), self.benchmark_score['time'])
+        plt.title('Time Complexity for 5 Iterations')
+        plt.ylabel('Time In Seconds')
+        plt.xlabel('No Of Iterations')
+        if save:
+            plt.savefig(__SAVE_PATH__ + '/time.png')
+        plt.show()
+
+    def __visualize_cprofile__(self, save=False):
+        score = pd.DataFrame(self.benchmark_score['detailed_profiling'])
+        ncalls = score.iloc[:, 0]
+        functions = score.iloc[:, -1]
+        plt.bar(functions, ncalls)
+        plt.title('No Of Functions Calls')
+        plt.xticks(rotation=45, ha="right")
+        for index, data in enumerate(ncalls):
+            plt.text(x=index, y=data + 1, s=f"{data}", fontdict=dict(fontsize=8))
+        plt.tight_layout()
+        if save:
+            plt.savefig(__SAVE_PATH__ + '/function_calls.png')
+        plt.show()
