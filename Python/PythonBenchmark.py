@@ -1,5 +1,5 @@
 import timeit
-from ModuleChecker import ModuleChecker
+from Python.ModuleChecker import ModuleChecker
 import os
 import io
 import pandas as pd
@@ -8,12 +8,13 @@ from os import path
 import shutil
 import matplotlib.pyplot as plt
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 __REPEAT__ = 5
-__NUMBER__ = 1000
-__SAVE_PATH__ = os.getcwd()
+__NUMBER__ = 1
+__SAVE_PATH__ = BASE_DIR
 
 
-class Benchmark:
+class PythonBenchmark:
     """
     Benchmarking python codes
     Completeness
@@ -31,7 +32,7 @@ class Benchmark:
         """
         self.url = url
         self.repo_validity = ModuleChecker(self.url).clone_check()
-        self.benchmark_score = {"complete": False, "correctness": True, "time": None, "memory": None,
+        self.benchmark_score = {"complete": False, "correctness": False, "time": None, "memory": None,
                                 "detailed_profiling": None}
         self.target_output = expected_output
         self.calculated_output = None
@@ -112,7 +113,7 @@ class Benchmark:
         pstats.Stats(profiler, stream=stream).sort_stats('ncalls').strip_dirs().print_stats()
         stream = stream.getvalue()
         self.__convert_to_csv__(stream)
-        self.benchmark_score['detailed_profiling'] = pd.read_csv(os.getcwd() + '/temp/stat.csv')
+        self.benchmark_score['detailed_profiling'] = pd.read_csv(BASE_DIR + '/temp/stat.csv')
 
     @staticmethod
     def __convert_to_csv__(stream):
@@ -123,7 +124,7 @@ class Benchmark:
         """
         result = 'ncalls' + stream.split('ncalls')[-1]
         result = '\n'.join([','.join(line.rstrip().split(None, 5)) for line in result.split('\n')])
-        f = open(os.getcwd() + '/temp/stat'.rsplit('.')[0] + '.csv', 'w')
+        f = open(BASE_DIR + '/temp/stat'.rsplit('.')[0] + '.csv', 'w')
         f.write(result)
         f.close()
 
@@ -132,10 +133,16 @@ class Benchmark:
         Removes the temporary files after results are calculated
         :return: None
         """
-        if path.exists(os.getcwd() + '/temp/'):
-            shutil.rmtree(os.getcwd() + '/temp/')
+        if path.exists(BASE_DIR + '/temp/'):
+            shutil.rmtree(BASE_DIR + '/temp/')
 
     def visualize(self, params='time', save=False):
+        """
+        Visualize the analyzed data
+        :param params: the item needed to be visualized
+        :param save: save the image as png if True
+        :return: None
+        """
         if self.benchmark_score['complete'] is True:
             if params == 'time':
                 self.__visualize_time__(save)
@@ -146,6 +153,11 @@ class Benchmark:
                 self.__visualize_cprofile__(save)
 
     def __visualize_time__(self, save=False):
+        """
+        Visualize the time complexity
+        :param save: saves png if True
+        :return: None
+        """
         plt.bar(range(1, 6), self.benchmark_score['time'])
         plt.title('Time Complexity for 5 Iterations')
         plt.ylabel('Time In Seconds')
@@ -155,6 +167,11 @@ class Benchmark:
         plt.show()
 
     def __visualize_cprofile__(self, save=False):
+        """
+        cProfile analysis of the algorithm
+        :param save: saves png if true
+        :return: None
+        """
         score = pd.DataFrame(self.benchmark_score['detailed_profiling'])
         ncalls = score.iloc[:, 0]
         functions = score.iloc[:, -1]
